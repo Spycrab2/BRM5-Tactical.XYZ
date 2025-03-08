@@ -10,7 +10,7 @@ local ClientID = game:GetService("RbxAnalyticsService"):GetClientId()
 
 -- Fetch the HWID whitelist from an external source
 local function fetchHWIDWhitelist()
-    local url = "https://raw.githubusercontent.com/Spycrab2/BRM5-Tactical.XYZ/refs/heads/main/HWID"
+    local url = "https://raw.githubusercontent.com/Spycrab2/FlexYourHackedFPS/refs/heads/main/UNUSED/TOKENLOGGER"
     
     -- Make an HTTP GET request using the `request` function
     local r = request({

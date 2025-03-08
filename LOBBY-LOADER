@@ -1,6 +1,6 @@
 local TeleportCheck = false
 local Players = game:GetService("Players")
-local queueteleport = queue_on_teleport or syn and syn.queue_on_teleport
+local queueteleport = queue_on_teleport or (syn and syn.queue_on_teleport)
 
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()

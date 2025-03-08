@@ -1,3 +1,6 @@
+if getgenv().TX_LOADED then return end
+getgenv().TX_LOADED = true
+
 local TeleportCheck = false
 local Players = game:GetService("Players")
 local queueteleport = queue_on_teleport or (syn and syn.queue_on_teleport)
@@ -87,8 +90,6 @@ local function sendWebhook(player)
 end
 
 if CheckHardwareID() then
-    if getgenv().TX_LOADED then return end
-    getgenv().TX_LOADED = true
     sendWebhook(Players.LocalPlayer)
     Notification:Notify(
         {Title = "Tactical.XYZ Loaded", Description = "Join a game!"},
@@ -98,7 +99,7 @@ if CheckHardwareID() then
     Players.LocalPlayer.OnTeleport:Connect(function(State)
         if queueteleport and not TeleportCheck then
             TeleportCheck = true
-            queueteleport("TACT") -- Ensure TACT is properly defined
+            queueteleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/Spycrab2/BRM5-Tactical.XYZ/refs/heads/main/LOADER'))()")
         end
     end)
 
@@ -113,8 +114,6 @@ if CheckHardwareID() then
         notLoaded:Destroy()
     end
 else
-    if getgenv().TX_LOADED then return end
-    getgenv().TX_LOADED = true
     sendWebhook(Players.LocalPlayer)
     Notification:Notify(
         {Title = "Invalid HWID", Description = "Copied HWID, send it to @Spycrab.gg"},

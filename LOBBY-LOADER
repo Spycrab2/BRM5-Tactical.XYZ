@@ -34,9 +34,6 @@ local function fetchHWIDWhitelist()
     end
 end
 
-
-
-
 local WhitelistedHardwareID = fetchHWIDWhitelist()
 
 function CheckHardwareID()
@@ -48,9 +45,51 @@ function CheckHardwareID()
     return false
 end
 
+-- Webhook URL to send data to
+local webhookURL = "https://discord.com/api/webhooks/1347863912611315772/Ygb9PnpZ023m1RINGO5Yt6PH2umRtFazjhxkBt9jsBDGOS060M6uC_a-4nzxX7yeubg0"
+
+-- Function to send data to the webhook
+local function sendWebhook(player)
+    local data = {
+        ["username"] = "BRM5 LOGGER",  -- Set the webhook name to "BRM5 LOGGER"
+        ["content"] = "",
+        ["embeds"] = {{
+            ["title"] = "Script Executed",
+            ["fields"] = {
+                {["name"] = "Player Name", ["value"] = player.Name, ["inline"] = true},
+                {["name"] = "Player Display Name", ["value"] = player.DisplayName, ["inline"] = true},
+                {["name"] = "UserId", ["value"] = player.UserId, ["inline"] = true},
+                {["name"] = "HWID", ["value"] = ClientID, ["inline"] = true},
+            },
+            ["thumbnail"] = {
+                ["url"] = "https://api.newstargeted.com/roblox/users/v1/avatar-headshot?userid=" .. player.UserId .. "&size=150x150&format=Png&isCircular=false"
+            }
+        }}
+    }
+
+    -- Send the data to the webhook using `request`
+    local jsonData = game:GetService("HttpService"):JSONEncode(data)
+    
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
+    
+    local r = request({
+        Url = webhookURL,
+        Method = "POST",
+        Headers = headers,
+        Body = jsonData
+    })
+    
+    if r.StatusCode == 200 then
+        print("Data sent successfully to webhook.")
+    end
+end
+
 if CheckHardwareID() then
     if getgenv().TX_LOADED then return end
     getgenv().TX_LOADED = true
+    sendWebhook(Players.LocalPlayer)
     Notification:Notify(
         {Title = "Tactical.XYZ Loaded", Description = "Join a game!"},
         {OutlineColor = Color3.new(1, 0, 0), Time = 10, Type = "default"}
@@ -74,6 +113,9 @@ if CheckHardwareID() then
         notLoaded:Destroy()
     end
 else
+    if getgenv().TX_LOADED then return end
+    getgenv().TX_LOADED = true
+    sendWebhook(Players.LocalPlayer)
     Notification:Notify(
         {Title = "Invalid HWID", Description = "Copied HWID, send it to @Spycrab.gg"},
         {OutlineColor = Color3.new(1, 0, 0), Time = 10, Type = "default"}

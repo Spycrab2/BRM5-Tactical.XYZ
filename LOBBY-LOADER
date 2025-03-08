@@ -1,36 +1,84 @@
-if game.GameId ~= 2916899287 then return end
 
-if getgenv().TX_LOADED then return end
-getgenv().TX_LOADED = true
 
 local TeleportCheck = false
 local Players = game:GetService("Players")
 local queueteleport = queue_on_teleport or syn and syn.queue_on_teleport
 
-local TACT = "loadstring(game:HttpGet('https://raw.githubusercontent.com/Spycrab2/BRM5-Tactical.XYZ/refs/heads/main/LOADER'))()"
-
 local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
 local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
 
-Notification:Notify(
-    {Title = "Tactical.XYZ Loaded", Description = "Join a game!"},
-    {OutlineColor = Color3.new(1, 0, 0), Time = 10, Type = "default"}
-)
+-- Get the client ID, which is not the same as the HWID
+local ClientID = game:GetService("RbxAnalyticsService"):GetClientId()
 
-Players.LocalPlayer.OnTeleport:Connect(function(State)
-	if queueteleport and not TeleportCheck then
-		TeleportCheck = true
-		queueteleport(TACT)
-	end
-end)
+-- Fetch the HWID whitelist from an external source
+local function fetchHWIDWhitelist()
+    local url = "https://raw.githubusercontent.com/Spycrab2/BRM5-Tactical.XYZ/refs/heads/main/HWID"
+    
+    -- Make an HTTP GET request using the `request` function
+    local r = request({
+        Url = url,
+        Method = "GET"
+    })
+    
+    -- Check if the request was successful (status code 200)
+    if r.StatusCode == 200 then
+        -- Decode the JSON response
+        local hwidData = game:GetService("HttpService"):JSONDecode(r.Body)
+        
+        -- Access the list of IDs from the "ids" key
+        local hwidList = hwidData.ids
+        
+        return hwidList
+    else
+        -- Print an error message if the request fails
+        print("Failed to fetch HWID whitelist. Status code: " .. r.StatusCode)
+        return nil
+    end
+end
 
-local cloneref = cloneref or function(o) return o end
-local COREGUI = cloneref(game:GetService("CoreGui"))
 
-if not game:IsLoaded() then
-    local notLoaded = Instance.new("Message")
-    notLoaded.Parent = COREGUI
-    notLoaded.Text = "Tactical.XYZ is waiting for the game to load"
-    game.Loaded:Wait()
-    notLoaded:Destroy()
+
+
+local WhitelistedHardwareID = fetchHWIDWhitelist()
+
+function CheckHardwareID()
+    for _, whitelisted in pairs(WhitelistedHardwareID) do
+        if ClientID == whitelisted then
+            return true
+        end
+    end
+    return false
+end
+
+if CheckHardwareID() then
+    if getgenv().TX_LOADED then return end
+    getgenv().TX_LOADED = true
+    Notification:Notify(
+        {Title = "Tactical.XYZ Loaded", Description = "Join a game!"},
+        {OutlineColor = Color3.new(1, 0, 0), Time = 10, Type = "default"}
+    )
+
+    Players.LocalPlayer.OnTeleport:Connect(function(State)
+        if queueteleport and not TeleportCheck then
+            TeleportCheck = true
+            queueteleport("TACT") -- Ensure TACT is properly defined
+        end
+    end)
+
+    local cloneref = cloneref or function(o) return o end
+    local COREGUI = cloneref(game:GetService("CoreGui"))
+
+    if not game:IsLoaded() then
+        local notLoaded = Instance.new("Message")
+        notLoaded.Parent = COREGUI
+        notLoaded.Text = "Tactical.XYZ is waiting for the game to load"
+        game.Loaded:Wait()
+        notLoaded:Destroy()
+    end
+else
+    Notification:Notify(
+        {Title = "Invalid HWID", Description = "Copied HWID, send it to @Spycrab.gg"},
+        {OutlineColor = Color3.new(1, 0, 0), Time = 10, Type = "default"}
+    )
+    setclipboard(ClientID) -- Copy the Client ID instead of HWID to clipboard
 end

@@ -1,5 +1,3 @@
-
-
 local TeleportCheck = false
 local Players = game:GetService("Players")
 local queueteleport = queue_on_teleport or syn and syn.queue_on_teleport
